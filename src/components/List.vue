@@ -3,14 +3,14 @@
   .list-items-container
     p.title {{ listTitle }}
     .list-items-wrapper
-      .list-item(v-for='item in listItems')
-        .icon-container
-          .icon-pin(@click='$emit( "pin-clicked" )')
+      .list-item(v-for='( item, index ) in listItems')
+        .icon-container(:class='{ "active" : item.active }')
+          .icon-pin(@click='$emit( "pin-clicked", index )')
           img.pin-outline(
             src='/icons/pin-outline.svg'
-            @click='$emit( "outline-clicked" )'
+            @click='$emit( "outline-clicked", index )'
           )
-        p.list-item-text {{ item }}
+        p.list-item-text {{ item.value }}
 
 </template>
 
@@ -25,7 +25,7 @@ export default {
     },
 
     listItems : {
-      type : Array, // ['cat', 'cats', 'cool cats', ...]
+      type : Array, // [ { value, 'cat', active : false }, { value : 'cats', active : true }, ...]
     },
   },
 };
@@ -56,7 +56,7 @@ export default {
           width: 22px;
           height: 18px;
 
-          &:hover {
+          &:hover, &.active {
 
             .icon-pin {
               opacity: 1;

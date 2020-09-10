@@ -8,15 +8,28 @@
         placeholder='Search...'
       )
 
-  .search-results-container
-    .pinned-results-container
+  .failed-container(v-if='resultsState === "failed"')
+    p.failed-indicator(@click='loadResults') Failed to load results. Click to try again.
+
+  .loading-container(v-else-if='resultsState === "loading"')
+    p.loading-indicator Loading...
+
+  .search-results-container(v-else)
+    .pinned-results-container(
+      :class='{ "active" : pinnedResults.length > 0 }'
+    )
       pinned-results(
         :pinned-results='pinnedResults'
+
+        @outline-clicked='removePin'
       )
 
     .search-results-wrapper
       search-results(
-        :search-results='searchResults'
+        :query='query'
+        :search-data='results'
+        @add-pin='addPin'
+        @remove-pin='removePin'
       )
 </template>
 
@@ -27,9 +40,13 @@ export default {
   data : () => ( {
     query : '',
 
-    results : [],
-
-    pinnedResults : ['cats'],
+    results : [
+      {
+        value  : 'cats',
+        active : false,
+      },
+    ],
+    resultsState : 'init', // we have 3 states: loading, failed, and init
 
   } ),
 
@@ -45,16 +62,56 @@ export default {
 
   computed : {
 
-    searchResults() {
+    pinnedResults() {
 
-      if ( this.query ) {
-        return ['cats'];
-      }
+      // * i'm trying to think about how to approach this correctly
+      // * while maintaining one single source of truth, I don't
+      // * want to manage two data sets of the same thing and I
+      // * don't believe this particular data set to be too big to
+      // * loop through in that it'll be costly to use to loop through.
+      // * That is why I am leaning more towards a computed value.
+      // * If I were to know that this data set would be bigger, I would
+      // * take a different approach which was our first approach but, this
+      // * comes with more problems as I mentioned earlier of having 2 data
+      // * sets to manage.
 
-      // we'll filter this by what the query is(if applicable)
-      return [];
+      return this.results.filter( ( a ) => a.active ); // active property is a boolean
 
     },
+
+  },
+
+  methods : {
+
+    loadResults() {
+
+      this.resultsState = 'loading';
+
+      this.results = [
+        {
+          value  : 'cats',
+          active : false,
+        },
+      ];
+
+      this.resultsState = 'init';
+
+    },
+
+    removePin( pinIndex ) {
+
+      this.results[pinIndex].active = false;
+
+      delete this.results[pinIndex].query;
+
+    },
+
+    addPin( pinIndex ) {
+
+      this.results[pinIndex].active = true;
+      this.results[pinIndex].query  = this.query;
+
+    }
 
   },
 

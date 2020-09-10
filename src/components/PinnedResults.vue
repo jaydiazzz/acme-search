@@ -3,6 +3,8 @@
   list(
     list-title='Pinned Results'
     :list-items='pinnedResults'
+
+    @outline-clicked='index => $emit( "outline-clicked", index )'
   )
 
 </template>
@@ -13,8 +15,21 @@ export default {
 
   props : {
     pinnedResults : {
-      type : Array, // ['cat', 'cats', 'cool cats', ...]
+      type : Array, // [ { value, 'cat', active : false }, { value : 'cats', active : true }, ...]
     },
+  },
+
+  computed : {
+
+    formattedResults() {
+
+      return this.pinnedResults.map( ( a ) => ( {
+        value  : `${a.value} - ${a.query}`,
+        active : a.active,
+      } ) );
+
+    },
+
   },
 
   components : {
