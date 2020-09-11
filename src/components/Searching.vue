@@ -24,7 +24,9 @@
         @outline-clicked='removePin'
       )
 
-    .search-results-wrapper
+    .search-results-wrapper(
+      :class='{ "active" : query }'
+    )
       search-results(
         :query='query'
         :search-data='results'
@@ -34,6 +36,8 @@
 </template>
 
 <script>
+import data from '@/assets/data';
+
 export default {
   name : 'searching',
 
@@ -46,7 +50,10 @@ export default {
         active : false,
       },
     ],
+
     resultsState : 'init', // we have 3 states: loading, failed, and init
+
+    pinnedResults : [],
 
   } ),
 
@@ -54,45 +61,94 @@ export default {
 
     // in here we will "load" the results
 
+    this.loadResults();
+
+    const setPinnedResults = ( () => { // eslint-disable-line
+
+      console.log( JSON.parse( localStorage.getItem( 'acme-search:pinnedResults' ) ) );
+
+      if ( localStorage.getItem( 'acme-search:pinnedResults' ) ) {
+        this.pinnedResults = JSON.parse( localStorage.getItem( 'acme-search:pinnedResults' ) );
+        return;
+      }
+
+      this.updatePinnedResults();
+
+    } )();
+
     // in here we will also grab the "pinned results" from the users local storage
     // ? i could easily implement a login for the user but this wasn't specified ? //
     // ? and I don't want the client (you) to be frustrated when testing my code ? //
 
   },
 
-  computed : {
+  watch : {
 
-    pinnedResults() {
+    results : {
+      immediate : false,
+      deep      : true,
+      handler() {
+        console.log( 'updatePinnedResults' );
+        this.validatePinnedResults();
+        // i think what would only be necessary is to validate the pinned results
+        // for if the results had updated information. If the data was updated, then
+        // we would have to check to see if the search result would still be there.
+        // I believe this is more than what you may have asked for but I will carry
+        // it out anyways because I believe that's the correct UX
+      }
+    },
 
-      // * i'm trying to think about how to approach this correctly
-      // * while maintaining one single source of truth, I don't
-      // * want to manage two data sets of the same thing and I
-      // * don't believe this particular data set to be too big to
-      // * loop through in that it'll be costly to use to loop through.
-      // * That is why I am leaning more towards a computed value.
-      // * If I were to know that this data set would be bigger, I would
-      // * take a different approach which was our first approach but, this
-      // * comes with more problems as I mentioned earlier of having 2 data
-      // * sets to manage.
-
-      return this.results.filter( ( a ) => a.active ); // active property is a boolean
-
+    pinnedResults : {
+      immediate : false,
+      deep      : true,
+      handler( pinned ) {
+        localStorage.setItem( 'acme-search:pinnedResults', JSON.stringify( pinned ) );
+      },
     },
 
   },
 
   methods : {
 
+    validatePinnedResults() {
+
+      // we're going to have to go through the results and through
+      // the pinned results. we need to try and make these loops as
+      // little as possible. 2O notation is gold but we'll see.
+
+    },
+
+    updatePinnedResults() {
+
+      // * I don't want to manage two data sets of the same thing and I
+      // * don't believe this particular data set will be too big to
+      // * loop through
+
+      // * If I were to know that this data set would be bigger, I would
+      // * take a different approach, but, the other approach would have
+      // * more problems, 1 being we would have 2 data sets to manage.
+
+      this.pinnedResults = this.results.filter( ( a ) => a.active ); // active property is a boolean
+
+    },
+
+    formatData( dataToFormat ) {
+
+      return dataToFormat.map( ( a ) => ( {
+        ...a,
+        value  : ( a.title || a.message || a.name ),
+        active : false,
+      } ) );
+
+    },
+
     loadResults() {
 
       this.resultsState = 'loading';
 
-      this.results = [
-        {
-          value  : 'cats',
-          active : false,
-        },
-      ];
+      // we'll take care of previously pinned results in a second
+
+      this.results = this.formatData( data );
 
       this.resultsState = 'init';
 
@@ -123,6 +179,8 @@ export default {
 </script>
 
 <style lang="scss">
+$blob-offset: 200px;
+
 .searching {
   display: flex;
   flex-flow: column;
@@ -171,21 +229,100 @@ export default {
     flex-flow: row wrap;
     align-items: stretch;
     flex: 1 1 0;
+    overflow: hidden;
 
     .pinned-results-container {
       flex: 1 0 40%;
 
       .pinned-results {
-        padding-top: 200px;
+        padding-top: $blob-offset;
       }
     }
 
     .search-results-wrapper {
       flex: 1 0 60%;
+      max-width: 100%;
+      transform: translate3d( 100%, 100% , 0);
+      max-height: 0;
+      transition: transform .5s ease-in-out;
+
+      &.active {
+        transform: translate3d( 0, 0, 0 );
+        max-height: 100%;
+      }
 
       .search-results {
-        padding-top: 200px;
+        padding-top: $blob-offset;
         height: 100%;
+      }
+    }
+  }
+}
+
+@media (max-width: 650px) {
+
+  .searching {
+
+    .search-input-container {
+      margin: 55px auto 0 auto;
+
+      .search-input {
+        width: 100%;
+      }
+    }
+
+    .search-results-container {
+      overflow: unset;
+
+      .pinned-results-container {
+        margin-top: 100px;
+        margin-bottom: 100px;
+
+        .pinned-results {
+          padding-top: 0;
+        }
+      }
+
+      .search-results-wrapper {
+        overflow-x: hidden;
+
+        .search-results {
+          overflow-x: hidden;
+          position: relative;
+
+          .blob {
+            top: 0;
+            bottom: unset;
+          }
+
+          .relative-blob {
+            display: none;
+          }
+
+          .list {
+            left: 50%;
+            top: 0;
+            transform: translateX( -50% );
+            width: 100%;
+            padding: 2.5%;
+            height: unset;
+            background: $color-primary;
+            position: relative;
+
+            .list-items-container {
+
+              .title {
+                margin-left: 50px;
+                margin-top: 50px;
+                width: calc( 95% - 50px );
+              }
+
+              .list-items-wrapper {
+                overflow-y: unset;
+              }
+            }
+          }
+        }
       }
     }
   }
