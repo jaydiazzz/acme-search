@@ -44,12 +44,14 @@ export default {
 
     .list-items-wrapper {
       padding-left: 25px;
-      margin-top: 60px;
+      padding-top: 60px;
 
       .list-item {
         display: flex;
         position: relative;
         align-items: center;
+        margin-bottom: 40px;
+        max-width: calc( 100% - 10px );
 
         .icon-container {
           position: relative;

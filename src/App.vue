@@ -10,6 +10,7 @@
   background: $color-secondary;
   font-family: 'Poppins', Helvetica, Arial, sans-serif;
   min-height: 100vh;
+  overflow: hidden;
 
   .router-view {
     min-height: 100vh;

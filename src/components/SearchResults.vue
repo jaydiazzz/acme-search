@@ -1,6 +1,7 @@
 <template lang="pug">
 .search-results
   img.blob(src='/img/blob.svg')
+  img.relative-blob(src='/img/blob.svg')
   .searching-container(v-if='searchState === "searching"')
     p.searching-indicator Searching...
   list(
@@ -86,22 +87,45 @@ export default {
 </script>
 
 <style lang="scss">
+$blob-offset: 200px;
+
 .search-results {
   position: relative;
   overflow: hidden;
 
   .blob {
     position: absolute;
-    top: 0;
-    left: 0;
+    bottom: 0;
+    right: 0;
     min-width: 100%;
     z-index: 0;
   }
 
-  .list {
+  .relative-blob {
+    min-width: 100%;
     position: relative;
+    opacity: 0;
+    pointer-events: none;
+    margin-top: -$blob-offset;
+  }
+
+  .list {
+    position: absolute;
     z-index: 1;
-    margin-left: 115px;
+    top: $blob-offset;
+    left: 15%;
+    height: calc( 100% - #{$blob-offset} );
+
+    .list-items-container {
+      height: 100%;
+      display: flex;
+      flex-flow: column;
+
+      .list-items-wrapper {
+        flex: 1 0 0;
+        overflow-y: auto;
+      }
+    }
   }
 }
 </style>
