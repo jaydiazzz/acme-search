@@ -15,13 +15,12 @@
     p.loading-indicator Loading...
 
   .search-results-container(v-else)
-    .pinned-results-container(
-      :class='{ "active" : pinnedResults.length > 0 }'
-    )
+    .pinned-results-container
       pinned-results(
-        :pinned-results='pinnedResults'
+        :search-data='results'
 
-        @outline-clicked='removePin'
+        @add-pin='addPin'
+        @remove-pin='removePin'
       )
 
     .search-results-wrapper(
@@ -38,22 +37,22 @@
 <script>
 import data from '@/assets/data';
 
+// as of our now our search results aren't huge. I don't believe for the sake of this project I
+// should worry about mass amounts of data. If this is a concern I'd gladly be able to demonstrate
+// my approach, however, with the time constraints I have and with the desire I have to not use
+// API's for something as simple as this project, and with the little amount of data we have, I
+// will just be using a computed property which loops through the data. Not to mention I made my
+// plans around the fact that I was given a small data set.
+
 export default {
   name : 'searching',
 
   data : () => ( {
     query : '',
 
-    results : [
-      {
-        value  : 'cats',
-        active : false,
-      },
-    ],
+    results : [],
 
     resultsState : 'init', // we have 3 states: loading, failed, and init
-
-    pinnedResults : [],
 
   } ),
 
@@ -63,90 +62,55 @@ export default {
 
     this.loadResults();
 
-    const setPinnedResults = ( () => { // eslint-disable-line
-
-      console.log( JSON.parse( localStorage.getItem( 'acme-search:pinnedResults' ) ) );
-
-      if ( localStorage.getItem( 'acme-search:pinnedResults' ) ) {
-        this.pinnedResults = JSON.parse( localStorage.getItem( 'acme-search:pinnedResults' ) );
-        return;
-      }
-
-      this.updatePinnedResults();
-
-    } )();
-
-    // in here we will also grab the "pinned results" from the users local storage
     // ? i could easily implement a login for the user but this wasn't specified ? //
     // ? and I don't want the client (you) to be frustrated when testing my code ? //
 
   },
 
-  watch : {
-
-    results : {
-      immediate : false,
-      deep      : true,
-      handler() {
-        console.log( 'updatePinnedResults' );
-        this.validatePinnedResults();
-        // i think what would only be necessary is to validate the pinned results
-        // for if the results had updated information. If the data was updated, then
-        // we would have to check to see if the search result would still be there.
-        // I believe this is more than what you may have asked for but I will carry
-        // it out anyways because I believe that's the correct UX
-      }
-    },
-
-    pinnedResults : {
-      immediate : false,
-      deep      : true,
-      handler( pinned ) {
-        localStorage.setItem( 'acme-search:pinnedResults', JSON.stringify( pinned ) );
-      },
-    },
-
-  },
-
   methods : {
 
-    validatePinnedResults() {
+    formatDataSet( dataSet ) {
 
-      // we're going to have to go through the results and through
-      // the pinned results. we need to try and make these loops as
-      // little as possible. 2O notation is gold but we'll see.
-
-    },
-
-    updatePinnedResults() {
-
-      // * I don't want to manage two data sets of the same thing and I
-      // * don't believe this particular data set will be too big to
-      // * loop through
-
-      // * If I were to know that this data set would be bigger, I would
-      // * take a different approach, but, the other approach would have
-      // * more problems, 1 being we would have 2 data sets to manage.
-
-      this.pinnedResults = this.results.filter( ( a ) => a.active ); // active property is a boolean
+      return {
+        ...dataSet,
+        value  : ( dataSet.title || dataSet.message || dataSet.name ),
+        active : false,
+      };
 
     },
 
     formatData( dataToFormat ) {
 
-      return dataToFormat.map( ( a ) => ( {
-        ...a,
-        value  : ( a.title || a.message || a.name ),
-        active : false,
-      } ) );
+      const formattedData = [];
+
+      const savedPins = JSON.parse( localStorage.getItem( 'acme-search:pinnedResults' ) ) || [];
+
+      dataToFormat.forEach( ( a ) => {
+
+        const previouslyPinned = savedPins.find( ( b ) => ( a.id === b.id ) );
+
+        if ( previouslyPinned ) {
+
+          a.active = true; // eslint-disable-line
+          a.query  = previouslyPinned.query; // eslint-disable-line
+          a.value  = ( previouslyPinned.title || previouslyPinned.message || previouslyPinned.name ); // eslint-disable-line
+
+          formattedData.push( a );
+          return;
+
+        }
+
+        formattedData.push( this.formatDataSet( a ) );
+
+      } );
+
+      return formattedData;
 
     },
 
     loadResults() {
 
       this.resultsState = 'loading';
-
-      // we'll take care of previously pinned results in a second
 
       this.results = this.formatData( data );
 
@@ -156,16 +120,16 @@ export default {
 
     removePin( pinIndex ) {
 
-      this.results[pinIndex].active = false;
+      this.$set( this.results[pinIndex], 'active', false );
 
-      delete this.results[pinIndex].query;
+      this.$delete( this.results[pinIndex], 'query' );
 
     },
 
     addPin( pinIndex ) {
 
-      this.results[pinIndex].active = true;
-      this.results[pinIndex].query  = this.query;
+      this.$set( this.results[pinIndex], 'active', true );
+      this.$set( this.results[pinIndex], 'query', this.query );
 
     }
 
@@ -191,7 +155,7 @@ $blob-offset: 200px;
     .search-input {
       position: relative;
       background: white;
-      box-shadow: 0px 0px 24px rgba(0, 0, 0, 0.05), 0px 4px 4px rgba(0, 0, 0, 0.05);
+      box-shadow: $box-shadow-primary;
       border-radius: 50px;
       overflow: hidden;
       width: 315px;
@@ -236,6 +200,14 @@ $blob-offset: 200px;
 
       .pinned-results {
         padding-top: $blob-offset;
+        transform: translate3d( -100%, 100% , 0);
+        max-height: 0;
+        transition: transform .5s ease-in-out;
+
+        &.active {
+          transform: translate3d( 0, 0, 0 );
+          max-height: 100%;
+        }
       }
     }
 

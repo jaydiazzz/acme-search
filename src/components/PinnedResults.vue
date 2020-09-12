@@ -1,11 +1,14 @@
 <template lang="pug">
-.pinned-results
-  list(
-    list-title='Pinned Results'
-    :list-items='pinnedResults'
+.pinned-results(
+  :class='{ "active" : pinnedResults.length > 0 }'
+)
+  .pinned-content-container
+    list(
+      list-title='Pinned Results'
+      :list-items='formattedResults'
 
-    @outline-clicked='index => $emit( "outline-clicked", index )'
-  )
+      @outline-clicked='removePin'
+    )
 
 </template>
 
@@ -14,9 +17,39 @@ export default {
   name : 'pinned-results',
 
   props : {
-    pinnedResults : {
-      type : Array, // [ { value, 'cat', active : false }, { value : 'cats', active : true }, ...]
+    searchData : {
+      type : Array,
     },
+  },
+
+  data : () => ( {
+
+    mappedData : {},
+
+    localSearchData : [], // this is used for referencing the previous value
+
+    pinnedResults : [],
+
+  } ),
+
+  created() {
+
+    const setPinnedResults = ( () => { // eslint-disable-line
+
+      if ( localStorage.getItem( 'acme-search:pinnedResults' ) ) {
+
+        const savedPins = JSON.parse( localStorage.getItem( 'acme-search:pinnedResults' ) );
+
+        this.pinnedResults = savedPins;
+
+        return;
+
+      }
+
+      this.updatePinnedResults();
+
+    } )();
+
   },
 
   computed : {
@@ -24,9 +57,119 @@ export default {
     formattedResults() {
 
       return this.pinnedResults.map( ( a ) => ( {
-        value  : `${a.value} - ${a.query}`,
-        active : a.active,
+        ...a,
+        value : `${a.value} - ${a.query}`,
       } ) );
+
+    },
+
+  },
+
+  watch : {
+
+    searchData : {
+      immediate : true,
+      deep      : true,
+      handler( val ) {
+
+        if ( this.localSearchData && JSON.stringify( this.localSearchData ) !== JSON.stringify( val ) ) {
+
+          const allRemovedPins = [];
+
+          this.localSearchData.forEach( ( dataSet ) => {
+
+            if ( dataSet.active && !val.includes( dataSet ) ) {
+
+              console.log( dataSet );
+
+              allRemovedPins.push( { value : `${dataSet.value} - ${dataSet.query}` } );
+
+            }
+
+          } );
+
+          if ( allRemovedPins.length ) {
+            this.$store.dispatch( 'removedPinnedResults', allRemovedPins );
+          }
+
+        }
+
+        this.updateLocalSearchData();
+        this.updateMappedData();
+
+        this.updatePinnedResults();
+
+      }
+    },
+
+    pinnedResults : {
+      immediate : false,
+      deep      : true,
+      handler( val ) {
+
+        localStorage.setItem( 'acme-search:pinnedResults', JSON.stringify( val ) );
+
+      },
+    },
+
+  },
+
+  methods : {
+
+    updateLocalSearchData() {
+
+      this.localSearchData = [...this.searchData];
+
+    },
+
+    updateMappedData() {
+
+      this.mappedData = this.searchData.reduce( ( mapped, dataSet, index ) => {
+
+        mapped[dataSet.id] = {...dataSet, searchDataIndex : index}; // eslint-disable-line
+
+        return mapped;
+
+      }, {} );
+
+    },
+
+    updatePinnedResults() {
+
+      // * I don't want to manage three data sets of the same thing and I
+      // * don't believe this particular data set will be too big to
+      // * loop through
+
+      // * If I were to know that this data set would be bigger, I would
+      // * take a different approach, but, the other approach would have
+      // * more problems, 1 being we would have 2 data sets to manage.
+
+      const pinnedResults = this.searchData.reduce( ( formattedResults, dataSet ) => {
+
+        if ( dataSet.active ) { // active property is a boolean
+
+          return [
+            ...formattedResults,
+            {
+              ...dataSet,
+            },
+          ];
+
+        }
+
+        return formattedResults;
+
+      }, [] );
+
+      this.$set( this, 'pinnedResults', pinnedResults );
+
+    },
+
+    removePin( pinnedResultsIndex ) {
+
+      const { searchDataIndex } = this.mappedData[this.pinnedResults[pinnedResultsIndex].id];
+
+      this.$emit( 'remove-pin', searchDataIndex );
 
     },
 
@@ -41,49 +184,52 @@ export default {
 <style lang="scss">
 .pinned-results {
 
-  .list {
+  .pinned-content-container {
 
-    .list-items-container {
+    .list {
 
-      .list-items-wrapper {
+      .list-items-container {
 
-        .list-item {
+        .list-items-wrapper {
 
-          .icon-container {
-            position: relative;
-            width: 22px;
-            height: 18px;
+          .list-item {
 
-            &:hover {
+            .icon-container {
+              position: relative;
+              width: 22px;
+              height: 18px;
 
-              .icon-pin {
-                opacity: 0;
-                pointer-events: none;
+              &:hover {
+
+                .icon-pin {
+                  opacity: 0;
+                  pointer-events: none;
+                }
+
+                .pin-outline {
+                  opacity: 1;
+                  pointer-events: all;
+                }
               }
 
-              .pin-outline {
+              .icon-pin, .pin-outline {
+                position: absolute;
+                top: 0;
+                left: 0;
+                cursor: pointer;
+                transition: opacity .3s ease-in;
+              }
+
+              .icon-pin {
                 opacity: 1;
                 pointer-events: all;
               }
-            }
 
-            .icon-pin, .pin-outline {
-              position: absolute;
-              top: 0;
-              left: 0;
-              cursor: pointer;
-              transition: opacity .3s ease-in;
-            }
-
-            .icon-pin {
-              opacity: 1;
-              pointer-events: all;
-            }
-
-            .pin-outline {
-              opacity: 0;
-              pointer-events: none;
-              height: 16px;
+              .pin-outline {
+                opacity: 0;
+                pointer-events: none;
+                height: 16px;
+              }
             }
           }
         }

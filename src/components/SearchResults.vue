@@ -1,7 +1,8 @@
 <template lang="pug">
 .search-results
-  img.blob(src='/img/blob.svg')
-  img.relative-blob(src='/img/blob.svg')
+  .blob-container
+    img.blob(src='/img/blob.svg')
+    img.relative-blob(src='/img/blob.svg')
   .searching-container(v-if='searchState === "searching"')
     p.searching-indicator Searching...
   list(
@@ -93,20 +94,25 @@ $blob-offset: 200px;
   position: relative;
   overflow: hidden;
 
-  .blob {
-    position: absolute;
-    bottom: 0;
-    right: 0;
-    min-width: 100%;
-    z-index: 0;
-  }
+  .blob-container {
+    max-height: 100%;
 
-  .relative-blob {
-    min-width: 100%;
-    position: relative;
-    opacity: 0;
-    pointer-events: none;
-    margin-top: -$blob-offset;
+    .blob {
+      position: absolute;
+      top: 0;
+      right: 0;
+      min-width: 100%;
+      z-index: 0;
+    }
+
+    .relative-blob {
+      min-width: 100%;
+      position: relative;
+      opacity: 0;
+      height: 0;
+      pointer-events: none;
+      // margin-top: -$blob-offset;
+    }
   }
 
   .list {
