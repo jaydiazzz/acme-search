@@ -6,6 +6,7 @@
     list(
       list-title='Pinned Results'
       :list-items='formattedResults'
+      :options='listOptions'
 
       @outline-clicked='removePin'
     )
@@ -29,6 +30,10 @@ export default {
     localSearchData : [], // this is used for referencing the previous value
 
     pinnedResults : [],
+
+    listOptions : {
+      collapsible : true,
+    }
 
   } ),
 
@@ -191,6 +196,7 @@ export default {
       .list-items-container {
 
         .list-items-wrapper {
+          padding-left: 70px;
 
           .list-item {
 

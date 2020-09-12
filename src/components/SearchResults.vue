@@ -1,12 +1,11 @@
 <template lang="pug">
 .search-results
-  .blob-container
-    img.blob(src='/img/blob.svg')
-    img.relative-blob(src='/img/blob.svg')
+  img.blob(src='/img/blob.svg')
   .searching-container(v-if='searchState === "searching"')
     p.searching-indicator Searching...
   list(
-    list-title='Here\'s what we got!'
+    :class='{ "blinking-title" : !query }'
+    :list-title='listTitle'
     :list-items='results'
     @pin-clicked='togglePin'
     @outline-clicked='togglePin'
@@ -36,6 +35,12 @@ export default {
   } ),
 
   computed : {
+
+    listTitle() {
+
+      return this.query ? 'Here\'s what we got!' : 'Start typing to search';
+
+    },
 
     results() {
 
@@ -94,42 +99,62 @@ $blob-offset: 200px;
   position: relative;
   overflow: hidden;
 
-  .blob-container {
-    max-height: 100%;
-
-    .blob {
-      position: absolute;
-      top: 0;
-      right: 0;
-      min-width: 100%;
-      z-index: 0;
-    }
-
-    .relative-blob {
-      min-width: 100%;
-      position: relative;
-      opacity: 0;
-      height: 0;
-      pointer-events: none;
-      // margin-top: -$blob-offset;
-    }
+  .blob {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX( -50% );
+    min-width: 100%;
+    z-index: 0;
   }
 
   .list {
-    position: absolute;
+    position: relative;
     z-index: 1;
-    top: $blob-offset;
-    left: 15%;
-    height: calc( 100% - #{$blob-offset} );
+    width: 100%;
+    background: $color-primary;
+
+    &.blinking-title {
+
+      .list-items-container {
+
+        .title-container {
+
+          .title {
+
+            @-webkit-keyframes blinking {
+              0%, 100% {
+                color: rgba( 0, 0, 0, 1 );
+              }
+
+              50% {
+                color: rgba( 0, 0, 0, .5 );
+              }
+            }
+
+            animation: blinking 1.5s infinite forwards;
+          }
+        }
+      }
+    }
 
     .list-items-container {
       height: 100%;
       display: flex;
       flex-flow: column;
 
+      .title-container {
+
+        .title {
+          text-align: center;
+          margin-left: 0;
+          width: 100%;
+        }
+      }
+
       .list-items-wrapper {
         flex: 1 0 0;
-        overflow-y: auto;
+        padding-left: 150px;
       }
     }
   }

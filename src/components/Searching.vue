@@ -15,23 +15,24 @@
     p.loading-indicator Loading...
 
   .search-results-container(v-else)
-    .pinned-results-container
-      pinned-results(
-        :search-data='results'
+    .search-results-results
+      .pinned-results-container
+        pinned-results(
+          :search-data='results'
 
-        @add-pin='addPin'
-        @remove-pin='removePin'
-      )
+          @add-pin='addPin'
+          @remove-pin='removePin'
+        )
 
-    .search-results-wrapper(
-      :class='{ "active" : query }'
-    )
-      search-results(
-        :query='query'
-        :search-data='results'
-        @add-pin='addPin'
-        @remove-pin='removePin'
+      .search-results-wrapper(
+        :class='{ "active" : query }'
       )
+        search-results(
+          :query='query'
+          :search-data='results'
+          @add-pin='addPin'
+          @remove-pin='removePin'
+        )
 </template>
 
 <script>
@@ -189,43 +190,41 @@ $blob-offset: 200px;
   }
 
   .search-results-container {
+    flex: 1 0 0;
     display: flex;
-    flex-flow: row wrap;
-    align-items: stretch;
-    flex: 1 1 0;
-    overflow: hidden;
 
-    .pinned-results-container {
-      flex: 1 0 40%;
+    .search-results-results {
+      display: flex;
+      flex-flow: column;
+      align-items: stretch;
+      flex: 1 1 0;
+      overflow: hidden;
 
-      .pinned-results {
-        padding-top: $blob-offset;
-        transform: translate3d( -100%, 100% , 0);
-        max-height: 0;
-        transition: transform .5s ease-in-out;
+      .pinned-results-container {
+        flex: 1 1 40%;
 
-        &.active {
-          transform: translate3d( 0, 0, 0 );
-          max-height: 100%;
+        .pinned-results {
+          padding-top: 100px;
+          transform: translate3d( -100%, 100% , 0);
+          max-height: 0;
+          transition: transform .5s ease-in-out;
+
+          &.active {
+            transform: translate3d( 0, 0, 0 );
+            max-height: 100%;
+          }
         }
       }
-    }
 
-    .search-results-wrapper {
-      flex: 1 0 60%;
-      max-width: 100%;
-      transform: translate3d( 100%, 100% , 0);
-      max-height: 0;
-      transition: transform .5s ease-in-out;
+      .search-results-wrapper {
+        flex: 1 1 60%;
+        max-width: 100%;
+        margin-top: 100px;
 
-      &.active {
-        transform: translate3d( 0, 0, 0 );
-        max-height: 100%;
-      }
-
-      .search-results {
-        padding-top: $blob-offset;
-        height: 100%;
+        .search-results {
+          padding-top: $blob-offset;
+          height: 100%;
+        }
       }
     }
   }
@@ -247,8 +246,6 @@ $blob-offset: 200px;
       overflow: unset;
 
       .pinned-results-container {
-        margin-top: 100px;
-        margin-bottom: 100px;
 
         .pinned-results {
           padding-top: 0;
@@ -256,10 +253,8 @@ $blob-offset: 200px;
       }
 
       .search-results-wrapper {
-        overflow-x: hidden;
 
         .search-results {
-          overflow-x: hidden;
           position: relative;
 
           .blob {
@@ -272,25 +267,19 @@ $blob-offset: 200px;
           }
 
           .list {
-            left: 50%;
-            top: 0;
-            transform: translateX( -50% );
             width: 100%;
             padding: 2.5%;
-            height: unset;
-            background: $color-primary;
-            position: relative;
 
             .list-items-container {
 
               .title {
-                margin-left: 50px;
-                margin-top: 50px;
-                width: calc( 95% - 50px );
+                margin: auto;
+                width: 95%;
               }
 
               .list-items-wrapper {
-                overflow-y: unset;
+                overflow: unset;
+                padding-left: 20px;
               }
             }
           }
