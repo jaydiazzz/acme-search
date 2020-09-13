@@ -30,6 +30,7 @@ export default {
     transform: translate( -50%, calc( -100% - 50px ) );
     transition: transform .3s ease-in;
     max-width: 50vw;
+    z-index: 1000;
 
     &.active {
       transform: translate( -50%, 0 );

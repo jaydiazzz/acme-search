@@ -205,14 +205,6 @@ $blob-offset: 200px;
 
         .pinned-results {
           padding-top: 100px;
-          transform: translate3d( -100%, 100% , 0);
-          max-height: 0;
-          transition: transform .5s ease-in-out;
-
-          &.active {
-            transform: translate3d( 0, 0, 0 );
-            max-height: 100%;
-          }
         }
       }
 
@@ -278,7 +270,6 @@ $blob-offset: 200px;
               }
 
               .list-items-wrapper {
-                overflow: unset;
                 padding-left: 20px;
               }
             }

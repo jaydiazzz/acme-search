@@ -1,7 +1,5 @@
 <template lang="pug">
-.pinned-results(
-  :class='{ "active" : pinnedResults.length > 0 }'
-)
+.pinned-results
   .pinned-content-container
     list(
       list-title='Pinned Results'
@@ -10,6 +8,12 @@
 
       @outline-clicked='removePin'
     )
+
+      .no-results(
+        v-if='!formattedResults.length'
+        slot='sub-title'
+      )
+        p.title No Pins Available
 
 </template>
 
@@ -194,6 +198,17 @@ export default {
     .list {
 
       .list-items-container {
+
+        .no-results {
+
+          .title {
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
+            font-weight: 400;
+            padding-right: 70px;
+          }
+        }
 
         .list-items-wrapper {
           padding-left: 70px;

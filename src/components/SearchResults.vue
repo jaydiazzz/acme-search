@@ -38,7 +38,15 @@ export default {
 
     listTitle() {
 
-      return this.query ? 'Here\'s what we got!' : 'Start typing to search';
+      if ( !this.query ) {
+        return 'Start typing to search';
+      }
+
+      if ( !this.results.length ) {
+        return 'No results found. Try searching for something else!';
+      }
+
+      return 'Here\'s what we got!';
 
     },
 
@@ -155,6 +163,7 @@ $blob-offset: 200px;
       .list-items-wrapper {
         flex: 1 0 0;
         padding-left: 150px;
+        overflow: unset;
       }
     }
   }

@@ -13,6 +13,10 @@
     .list-items-wrapper(
       ref='listItems'
     )
+      slot(
+        name='sub-title'
+      )
+
       .list-item(v-for='( item, index ) in listItems')
         .icon-container(:class='{ "active" : item.active }')
           .icon-pin(@click='$emit( "pin-clicked", index )')

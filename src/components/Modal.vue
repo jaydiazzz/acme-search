@@ -48,7 +48,7 @@ export default {
 
         this.messageTimeout = setTimeout( () => {
           this.message = '';
-        }, this.animationDuration );
+        }, ( this.animationDuration + 1000 ) );
 
       },
     }
