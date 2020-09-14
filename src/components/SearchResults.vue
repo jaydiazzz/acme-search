@@ -60,7 +60,7 @@ export default {
 
       }
 
-      // we'll filter this by what the query is (if applicable)
+      // if there is no search, then return nothing
       return [];
 
     },

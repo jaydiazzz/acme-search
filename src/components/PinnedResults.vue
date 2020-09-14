@@ -89,8 +89,6 @@ export default {
 
             if ( dataSet.active && !val.includes( dataSet ) ) {
 
-              console.log( dataSet );
-
               allRemovedPins.push( { value : `${dataSet.value} - ${dataSet.query}` } );
 
             }
@@ -145,13 +143,7 @@ export default {
 
     updatePinnedResults() {
 
-      // * I don't want to manage three data sets of the same thing and I
-      // * don't believe this particular data set will be too big to
-      // * loop through
-
-      // * If I were to know that this data set would be bigger, I would
-      // * take a different approach, but, the other approach would have
-      // * more problems, 1 being we would have 2 data sets to manage.
+      // this just does a simple filter for items that are active
 
       const pinnedResults = this.searchData.reduce( ( formattedResults, dataSet ) => {
 

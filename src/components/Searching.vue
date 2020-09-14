@@ -41,10 +41,8 @@ import { setIndex } from '@/assets/js/search';
 
 // as of our now our search results aren't huge. I don't believe for the sake of this project I
 // should worry about mass amounts of data. If this is a concern I'd gladly be able to demonstrate
-// my approach, however, with the time constraints I have and with the desire I have to not use
-// API's for something as simple as this project, and with the little amount of data we have, I
-// will just be using a computed property which loops through the data. Not to mention I made my
-// plans around the fact that I was given a small data set.
+// my approach, however, with the time constraints I have and with the little amount of data we have,
+// I will be using a simple search algorithm
 
 export default {
   name : 'searching',
