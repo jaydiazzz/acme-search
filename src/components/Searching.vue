@@ -37,6 +37,7 @@
 
 <script>
 import data from '@/assets/data';
+import { setIndex } from '@/assets/js/search';
 
 // as of our now our search results aren't huge. I don't believe for the sake of this project I
 // should worry about mass amounts of data. If this is a concern I'd gladly be able to demonstrate
@@ -114,6 +115,7 @@ export default {
       this.resultsState = 'loading';
 
       this.results = this.formatData( data );
+      setIndex( this.results, 'matching_terms', 'id' );
 
       this.resultsState = 'init';
 

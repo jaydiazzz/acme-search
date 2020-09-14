@@ -14,6 +14,8 @@
 </template>
 
 <script>
+import { search } from '@/assets/js/search';
+
 export default {
   name : 'search-results',
 
@@ -71,7 +73,8 @@ export default {
 
       this.searchState = 'searching';
 
-      const searchedResults = this.searchData;
+      // TODO: We need to implement a point system
+      const searchedResults = search( this.query );
 
       this.searchState = 'init';
 
