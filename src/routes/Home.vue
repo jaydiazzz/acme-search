@@ -37,4 +37,14 @@ export default {
     flex: 1 1 0;
   }
 }
+
+@media (max-width: $mobile) {
+
+  .home {
+
+    .top-bar-container {
+      width: calc( 90% - 50px );
+    }
+  }
+}
 </style>
