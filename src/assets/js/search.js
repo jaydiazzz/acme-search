@@ -63,14 +63,14 @@ export const search = ( query ) => {
 
   // query : a
   // * matchedKeys = ['a', 'dave', 'AAA', 'car', ...]
-  const matchedKeys = flattenedTerms.filter( ( a ) => a.includes( query ) );
+  const matchedKeys = flattenedTerms.filter( ( a ) => a.includes( query.toLowerCase() ) );
 
   const returnedResults = [];
   const idsChecked      = {};
 
   // here we will go through the matchedKeys and grab all
   // results that include our query
-  const foundResults = matchedKeys.forEach( ( key ) => { // eslint-disable-line
+  matchedKeys.forEach( ( key ) => { // eslint-disable-line
 
     // what you're going to want to do is go through each key
     // in your data[allTerms[?key]] and those will be your search
@@ -92,7 +92,7 @@ export const search = ( query ) => {
 
     } );
 
-  }, {} );
+  } );
 
   prevSearches[query] = returnedResults;
 
