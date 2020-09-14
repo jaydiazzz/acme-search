@@ -21,7 +21,6 @@ export default {
   background: $color-secondary;
   font-family: 'Poppins', Helvetica, Arial, sans-serif;
   min-height: 100vh;
-  overflow: hidden;
 
   .modal {
     position: fixed;
