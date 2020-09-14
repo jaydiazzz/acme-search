@@ -54,21 +54,41 @@ export default {
 
   mounted() {
 
-    const vm = this;
+    this.adjustMaxHeight();
 
-    this.$nextTick( () => {
+  },
 
-      if ( vm.options && vm.options.collapsible ) {
+  watch : {
 
-        vm.$refs.listItems.style.maxHeight = `${vm.$refs.listItems.clientHeight}px`;
+    listItems : {
+      deep : true,
+      handler() {
 
-      }
+        this.adjustMaxHeight();
 
-    } );
+      },
+    },
 
   },
 
   methods : {
+
+    adjustMaxHeight() {
+
+      const vm = this;
+
+      this.$nextTick( () => {
+
+        if ( vm.options && vm.options.collapsible ) {
+
+          vm.$refs.listItems.style.maxHeight = 'unset';
+          vm.$refs.listItems.style.maxHeight = `${vm.$refs.listItems.clientHeight}px`;
+
+        }
+
+      } );
+
+    },
 
     toggleCollapse() {
       this.collapsed = !this.collapsed;

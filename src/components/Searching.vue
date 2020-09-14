@@ -14,8 +14,8 @@
   .loading-container(v-else-if='resultsState === "loading"')
     p.loading-indicator Loading...
 
-  .search-results-container(v-else)
-    .search-results-results
+  .searching-content(v-else)
+    .search-results-container
       .pinned-results-container
         pinned-results(
           :search-data='results'
@@ -189,11 +189,11 @@ $blob-offset: 200px;
     }
   }
 
-  .search-results-container {
+  .searching-content {
     flex: 1 0 0;
     display: flex;
 
-    .search-results-results {
+    .search-results-container {
       display: flex;
       flex-flow: column;
       align-items: stretch;
@@ -234,43 +234,46 @@ $blob-offset: 200px;
       }
     }
 
-    .search-results-container {
-      overflow: unset;
+    .searching-content {
 
-      .pinned-results-container {
+      .search-results-container {
+        overflow: unset;
 
-        .pinned-results {
-          padding-top: 0;
+        .pinned-results-container {
+
+          .pinned-results {
+            padding-top: 50px;
+          }
         }
-      }
 
-      .search-results-wrapper {
+        .search-results-wrapper {
 
-        .search-results {
-          position: relative;
+          .search-results {
+            position: relative;
 
-          .blob {
-            top: 0;
-            bottom: unset;
-          }
+            .blob {
+              top: 0;
+              bottom: unset;
+            }
 
-          .relative-blob {
-            display: none;
-          }
+            .relative-blob {
+              display: none;
+            }
 
-          .list {
-            width: 100%;
-            padding: 2.5%;
+            .list {
+              width: 100%;
+              padding: 2.5%;
 
-            .list-items-container {
+              .list-items-container {
 
-              .title {
-                margin: auto;
-                width: 95%;
-              }
+                .title {
+                  margin: auto;
+                  width: 95%;
+                }
 
-              .list-items-wrapper {
-                padding-left: 20px;
+                .list-items-wrapper {
+                  padding-left: 20px;
+                }
               }
             }
           }
